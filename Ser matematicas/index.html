@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HealthTrack - Salud y Bienestar</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <header>
+      <div class="logo">🩺 HealthTrack</div>
+
+      <nav>
+        <button onclick="mostrarSeccion('inicio')">Inicio</button>
+        <button onclick="mostrarSeccion('habitos')">Hábitos</button>
+        <button onclick="mostrarSeccion('citas')">Citas</button>
+        <button onclick="mostrarSeccion('prevencion')">Prevención</button>
+        <button onclick="mostrarSeccion('recordatorios')">🔔 Recordatorios</button>
+      </nav>
+    </header>
+
+<!-- INICIO -->
+<section id="inicio" class="seccion activa">
+
+  <div class="bienvenida">
+    <h1 id="saludoPrincipal">Hola 👋</h1>
+    <p>Cuida tu salud, un día a la vez.</p>
+  </div>
+
+
+  <!-- CONSEJO DEL DÍA -->
+
+  <div class="tarjeta consejo">
+
+    <h2>💡 Consejo del día</h2>
+
+    <p id="consejoTexto">
+      La prevención y los buenos hábitos pueden contribuir al cuidado de tu salud.
+    </p>
+
+  </div>
+
+
+  <!-- DASHBOARD DE SALUD -->
+
+  <div class="dashboard-salud">
+
+    <h2>🩺 Mi resumen de salud</h2>
+
+    <p id="saludoDashboard">
+      👋 Hola
+    </p>
+
+
+    <div class="dashboard-grid">
+
+      <!-- CITAS -->
+
+      <div class="dashboard-card">
+
+        <div class="dashboard-icon">
+          📅
+        </div>
+
+        <h3>Citas</h3>
+
+        <p id="dashboardCitas">
+          0
+        </p>
+
+        <span>
+          citas registradas
+        </span>
+
+      </div>
+
+
+      <!-- RECORDATORIOS -->
+
+      <div class="dashboard-card">
+
+        <div class="dashboard-icon">
+          🔔
+        </div>
+
+        <h3>Recordatorios</h3>
+
+        <p id="dashboardRecordatorios">
+          0
+        </p>
+
+        <span>
+          pendientes
+        </span>
+
+      </div>
+
+
+      <!-- COMPLETADOS -->
+
+      <div class="dashboard-card">
+
+        <div class="dashboard-icon">
+          ✅
+        </div>
+
+        <h3>Completados</h3>
+
+        <p id="dashboardCompletados">
+          0
+        </p>
+
+        <span>
+          recordatorios
+        </span>
+
+      </div>
+
+
+      <!-- PRÓXIMA CITA -->
+
+      <div class="dashboard-card dashboard-proxima">
+
+        <div class="dashboard-icon">
+          🗓️
+        </div>
+
+        <h3>Próxima cita</h3>
+
+        <div id="dashboardProximaCita">
+
+          <p>
+            No tienes citas próximas.
+          </p>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- RECORDATORIOS PENDIENTES -->
+
+    <div class="dashboard-recordatorios">
+
+      <h3>
+        🔔 Próximos recordatorios
+      </h3>
+
+      <div id="dashboardListaRecordatorios">
+
+        <p>
+          No tienes recordatorios pendientes.
+        </p>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+      <!-- HABITOS -->
+      <section id="habitos" class="seccion">
+        <h1>🌱 Mis hábitos</h1>
+
+        <div class="tarjeta">
+          <h2>Hábitos saludables</h2>
+
+          <ul id="listaHabitos">
+            <li>
+              <span>💧 Tomar agua</span>
+              <button onclick="marcarHabito(this)">Completar</button>
+            </li>
+
+            <li>
+              <span>🏃 Realizar actividad física</span>
+              <button onclick="marcarHabito(this)">Completar</button>
+            </li>
+
+            <li>
+              <span>🥗 Alimentarse adecuadamente</span>
+              <button onclick="marcarHabito(this)">Completar</button>
+            </li>
+
+            <li>
+              <span>😴 Dormir adecuadamente</span>
+              <button onclick="marcarHabito(this)">Completar</button>
+            </li>
+
+            <li>
+              <span>🦷 Cuidar la higiene dental</span>
+              <button onclick="marcarHabito(this)">Completar</button>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- CITAS -->
+      <section id="citas" class="seccion">
+        <h1>📅 Mis citas médicas</h1>
+
+        <div class="tarjeta">
+          <h2>Agregar una cita</h2>
+
+          <input type="text" id="tipoCita" placeholder="Ej: Odontología" />
+
+          <input type="date" id="fechaCita" />
+
+          <input type="time" id="horaCita" />
+
+          <input type="text" id="notaCita" placeholder="Nota opcional" />
+
+          <button onclick="agregarCita()">+ Agregar cita</button>
+        </div>
+
+        <div class="tarjeta">
+          <h2>📋 Próximas citas</h2>
+
+          <div id="listaCitas">
+            <p>No tienes citas registradas.</p>
+          </div>
+        </div>
+      </section>
+
+<!-- RECORDATORIOS -->
+
+<section id="recordatorios" class="seccion">
+
+  <h1>🔔 Mis recordatorios</h1>
+
+
+  <!-- CREAR RECORDATORIO -->
+
+  <div class="tarjeta">
+
+    <h3>➕ Nuevo recordatorio</h3>
+
+    <input
+      type="text"
+      id="tituloRecordatorio"
+      placeholder="Ej: Tomar agua"
+    >
+
+    <select id="tipoRecordatorio">
+
+      <option value="💧 Hidratación">
+        💧 Hidratación
+      </option>
+
+      <option value="💊 Medicamento">
+        💊 Medicamento
+      </option>
+
+      <option value="🦷 Higiene dental">
+        🦷 Higiene dental
+      </option>
+
+      <option value="🏃 Actividad física">
+        🏃 Actividad física
+      </option>
+
+      <option value="😴 Sueño">
+        😴 Sueño
+      </option>
+
+      <option value="🩺 Salud">
+        🩺 Salud
+      </option>
+
+      <option value="📌 Otro">
+        📌 Otro
+      </option>
+
+    </select>
+
+
+    <label for="fechaRecordatorio">
+      Fecha
+    </label>
+
+    <input
+      type="date"
+      id="fechaRecordatorio"
+    >
+
+
+    <label for="horaRecordatorio">
+      Hora
+    </label>
+
+    <input
+      type="time"
+      id="horaRecordatorio"
+    >
+
+
+    <button onclick="crearRecordatorio()">
+      🔔 Crear recordatorio
+    </button>
+
+  </div>
+
+
+  <!-- LISTA DE RECORDATORIOS -->
+
+  <div class="tarjeta">
+
+    <h3>📋 Mis recordatorios</h3>
+
+    <div id="listaRecordatorios">
+
+      <p>
+        Cargando recordatorios...
+      </p>
+
+    </div>
+
+  </div>
+
+</section>
+
+      <!-- PREVENCION -->
+      <section id="prevencion" class="seccion">
+        <h1>🩺 Prevención y educación</h1>
+
+        <p class="descripcion-prevencion">
+          Aprende sobre prevención y hábitos saludables utilizando fuentes
+          oficiales de información.
+        </p>
+
+        <div class="grid">
+          <div class="tarjeta prevencion">
+            <h2>👁️ Salud visual</h2>
+
+            <p>
+              Información sobre el cuidado de los ojos, visión y prevención de
+              problemas visuales.
+            </p>
+
+            <a
+              href="https://www.who.int/es/news-room/fact-sheets/detail/blindness-and-visual-impairment"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="boton-enlace"
+            >
+              🌐 Consultar OMS
+            </a>
+          </div>
+
+          <div class="tarjeta prevencion">
+            <h2>🦷 Salud dental</h2>
+
+            <p>Información sobre higiene y cuidado de la salud bucal.</p>
+
+            <a
+              href="https://www.who.int/health-topics/oral-health"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="boton-enlace"
+            >
+              🌐 Consultar OMS
+            </a>
+          </div>
+
+          <div class="tarjeta prevencion">
+            <h2>🩷 Salud femenina</h2>
+
+            <p>
+              Información sobre salud femenina, prevención y controles de salud.
+            </p>
+
+            <a
+              href="https://www.who.int/health-topics/women-s-health"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="boton-enlace"
+            >
+              🌐 Consultar OMS
+            </a>
+          </div>
+
+          <div class="tarjeta prevencion">
+            <h2>💙 Salud masculina</h2>
+
+            <p>
+              Información general sobre prevención y cuidado de la salud
+              masculina.
+            </p>
+
+            <a
+              href="https://www.who.int/es/news-room/feature-stories/detail/men%E2%80%99s-health-checklist"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="boton-enlace"
+            >
+              🌐 Consultar OMS
+            </a>
+          </div>
+
+          <div class="tarjeta prevencion">
+            <h2>☀️ Protección solar</h2>
+
+            <p>
+              Aprende sobre los efectos de la radiación ultravioleta y cómo
+              protegerte.
+            </p>
+
+            <a
+              href="https://www.who.int/health-topics/radiation"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="boton-enlace"
+            >
+              🌐 Consultar OMS
+            </a>
+          </div>
+
+          <div class="tarjeta prevencion">
+            <h2>💉 Vacunación</h2>
+
+            <p>
+              Información sobre vacunas e inmunización y su importancia para la
+              prevención.
+            </p>
+
+            <a
+              href="https://www.who.int/health-topics/vaccines-and-immunization"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="boton-enlace"
+            >
+              🌐 Consultar OMS
+            </a>
+          </div>
+
+          <div class="tarjeta prevencion">
+            <h2>🥗 Alimentación saludable</h2>
+
+            <p>Aprende sobre nutrición y alimentación saludable.</p>
+
+            <a
+              href="https://www.who.int/health-topics/healthy-diet"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="boton-enlace"
+            >
+              🌐 Consultar OMS
+            </a>
+          </div>
+
+          <div class="tarjeta prevencion">
+            <h2>🧠 Salud mental</h2>
+
+            <p>Información general sobre salud mental y bienestar.</p>
+
+            <a
+              href="https://www.who.int/health-topics/mental-health"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="boton-enlace"
+            >
+              🌐 Consultar OMS
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>HealthTrack | Proyecto ODS 3: Salud y Bienestar</p>
+
+      <small>
+        Esta aplicación tiene fines educativos y no sustituye la orientación de
+        profesionales de la salud.
+      </small>
+    </footer>
+
+    <script type="module" src="firebase-config.js"></script>
+    <script type="module" src="script.js"></script>
+  </body>
+</html>

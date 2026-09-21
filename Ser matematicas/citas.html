@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Mis citas | HealthTrack</title>
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <main class="auth-container">
+      <div class="auth-card">
+        <h1>📅 Mis citas</h1>
+
+        <p>Organiza tus citas médicas y de salud.</p>
+
+        <form id="citaForm">
+          <label for="tipoCita"> Tipo de cita </label>
+
+          <input
+            type="text"
+            id="tipoCita"
+            placeholder="Ej. Odontología"
+            required
+          />
+
+          <label for="fechaCita"> Fecha </label>
+
+          <input type="date" id="fechaCita" required />
+
+          <label for="horaCita"> Hora </label>
+
+          <input type="time" id="horaCita" required />
+
+          <label for="notaCita"> Nota </label>
+
+          <textarea
+            id="notaCita"
+            placeholder="Ej. Llevar resultados de exámenes"
+          ></textarea>
+
+          <button type="submit">📅 Guardar cita</button>
+        </form>
+
+        <p id="mensajeCita"></p>
+      </div>
+
+      <div class="auth-card">
+        <h2>Próximas citas</h2>
+
+        <div id="listaCitas">
+          <p>Cargando citas...</p>
+        </div>
+      </div>
+    </main>
+
+    <script type="module" src="citas.js"></script>
+  </body>
+</html>
