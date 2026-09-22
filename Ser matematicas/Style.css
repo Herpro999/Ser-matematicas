@@ -558,3 +558,35 @@ footer small {
     transform:translateY(-2px);
     box-shadow:0 12px 30px rgba(37,99,235,.25);
 }
+
+.login-subtitle {
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 10px 0 28px;
+}
+
+.login-card h1 {
+    color: #1e40af;
+    font-size: 28px;
+    margin-bottom: 6px;
+}
+
+.login-card h2 {
+    color: #334155;
+    font-size: 20px;
+    margin-bottom: 0;
+}
+
+.input-group {
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #334155;
+    font-size: 14px;
+    font-weight: 600;
+}
