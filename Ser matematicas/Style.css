@@ -475,3 +475,88 @@ footer small {
 
     opacity: 0.7;
 }
+
+.login-page{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-family:'Poppins',sans-serif;
+
+    background:linear-gradient(
+        180deg,
+        #3B82F6 0%,
+        #60A5FA 35%,
+        #E0F2FE 100%
+    );
+}
+
+.login-card{
+    width:100%;
+    max-width:380px;
+
+    background:#ffffff;
+
+    padding:38px 32px;
+
+    border-radius:32px;
+
+    box-shadow:
+        0 20px 45px rgba(30,64,175,.18);
+
+    text-align:center;
+}
+
+.hero-image{
+    width:160px;
+    display:block;
+    margin:0 auto 20px;
+}
+
+.input-group input{
+    width:100%;
+    box-sizing:border-box;
+
+    padding:16px 18px;
+
+    border:2px solid transparent;
+    border-radius:18px;
+
+    background:#F8FAFC;
+
+    font-size:15px;
+
+    transition:.3s;
+}
+
+.input-group input:focus{
+    border-color:#3B82F6;
+    background:white;
+    outline:none;
+    box-shadow:0 0 0 4px rgba(59,130,246,.15);
+}
+
+.primary-btn{
+    width:100%;
+    padding:16px;
+
+    border:none;
+    border-radius:18px;
+
+    background:linear-gradient(90deg,#2563EB,#38BDF8);
+
+    color:white;
+    font-size:16px;
+    font-weight:600;
+
+    cursor:pointer;
+    transition:.25s;
+}
+
+.primary-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 12px 30px rgba(37,99,235,.25);
+}
+
+<img src="images/login-health.jpg" class="hero-image" alt="Health illustration">
