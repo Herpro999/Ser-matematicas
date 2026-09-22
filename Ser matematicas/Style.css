@@ -633,3 +633,98 @@ footer {
         padding: 8px 9px;
     }
 }
+
+/* =========================================================
+   HABITS — SQUARE CARD GRID
+   ========================================================= */
+
+#listaHabitos {
+    display: grid;
+
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 20px;
+
+    list-style: none;
+
+    margin-top: 20px;
+}
+
+#listaHabitos li {
+    min-height: 180px;
+
+    padding: 22px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    text-align: center;
+
+    background: #F3EBDD !important;
+
+    border: 2px solid #E3D5BF !important;
+
+    border-radius: 22px;
+
+    box-shadow:
+        0 8px 20px rgba(71, 85, 105, 0.10);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+#listaHabitos li:hover {
+    background: #EDE1CD !important;
+
+    transform: translateY(-5px);
+
+    box-shadow:
+        0 14px 28px rgba(37, 99, 235, 0.12);
+}
+
+#listaHabitos li span {
+    color: #334155;
+
+    font-size: 16px;
+
+    font-weight: 700;
+}
+
+
+/* Habit buttons */
+
+#listaHabitos li button {
+    margin-top: 15px;
+
+    width: 100%;
+
+    max-width: 140px;
+}
+
+
+/* Tablet */
+
+@media (max-width: 800px) {
+
+    #listaHabitos {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+}
+
+
+/* Phone */
+
+@media (max-width: 500px) {
+
+    #listaHabitos {
+        grid-template-columns: 1fr;
+    }
+
+}
