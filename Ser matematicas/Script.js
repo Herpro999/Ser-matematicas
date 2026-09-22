@@ -2841,185 +2841,91 @@ cargarCitasDesdeFirebase();
 
 function cargarCitasDesdeFirebase() {
 
-    // Detener listener anterior
-    if (detenerListenerCitas) {
-
-        detenerListenerCitas();
-
-        detenerListenerCitas = null;
-
-    }
-
-
-    // Comprobar usuario
-
     if (!usuarioActual) {
-
-        citas = [];
-
-        mostrarCitas();
-
-        mostrarProximaCita();
-
+        console.log("⚠️ No hay usuario para cargar citas");
         return;
-
     }
 
+    // Detener listener anterior si existe
+    if (citasUnsubscribe) {
+        citasUnsubscribe();
+        citasUnsubscribe = null;
+    }
 
-    console.log(
-        "📥 Cargando citas del usuario:",
-        usuarioActual.uid
+    const citasRef = collection(
+        db,
+        "users",
+        usuarioActual.uid,
+        "citas"
     );
 
+    citasUnsubscribe = onSnapshot(
+        citasRef,
+        (snapshot) => {
 
-    // Ruta:
-    // users / UID / citas
+            citas = [];
 
-    const citasRef =
-        collection(
-            db,
-            "users",
-            usuarioActual.uid,
-            "citas"
-        );
+            snapshot.forEach((docSnap) => {
 
+                const data = docSnap.data();
 
-    // Escuchar cambios en tiempo real
+                citas.push({
+                    id: docSnap.id,
+                    ...data
+                });
 
-    detenerListenerCitas =
-        onSnapshot(
+            });
 
-            citasRef,
+            // Ordenar las citas por fecha y hora
+            citas.sort((a, b) => {
 
-            function(snapshot) {
-
-                citas = [];
-
-
-                snapshot.forEach(
-                    function(documento) {
-
-                        const datos =
-                            documento.data();
-
-
-                        citas.push({
-
-                            id:
-                                documento.id,
-
-                            tipo:
-                                datos.tipo || "",
-
-                            fecha:
-                                datos.fecha || "",
-
-                            hora:
-                                datos.hora || "",
-
-                            nota:
-                                datos.nota || "",
-
-                            creadaEn:
-                                datos.creadaEn || ""
-
-                        });
-
-                    }
+                const fechaA = new Date(
+                    `${a.fecha}T${a.hora || "00:00"}`
                 );
 
-
-                // Ordenar por fecha y hora
-
-                citas.sort(
-                    function(a, b) {
-
-                        const fechaA =
-                            new Date(
-                                a.fecha +
-                                "T" +
-                                a.hora
-                            );
-
-
-                        const fechaB =
-                            new Date(
-                                b.fecha +
-                                "T" +
-                                b.hora
-                            );
-
-
-                        return (
-                            fechaA.getTime() -
-                            fechaB.getTime()
-                        );
-
-                    }
+                const fechaB = new Date(
+                    `${b.fecha}T${b.hora || "00:00"}`
                 );
 
+                return fechaA - fechaB;
+            });
 
-                console.log(
-                    "📅 Citas cargadas:",
-                    citas.length
-                );
+            console.log(
+                "📅 Citas cargadas:",
+                citas.length
+            );
 
-console.log(
-    "📦 Datos de citas:",
-    citas
-);
+            console.log(
+                "📦 Datos de citas:",
+                citas
+            );
 
-console.log(
-    "🎯 Contenedor de citas:",
-    document.getElementById("listaCitas")
-);
+            console.log(
+                "🎯 Contenedor de citas:",
+                document.getElementById("listaCitas")
+            );
 
-                mostrarCitas();
+            // Actualizar la sección de citas
+            mostrarCitas();
 
-                mostrarProximaCita();
+            // Actualizar próxima cita
+            mostrarProximaCita();
 
-            },
+            // ⭐ IMPORTANTE:
+            // Actualizar inmediatamente el dashboard
+            actualizarDashboard();
 
+        },
+        (error) => {
 
-            function(error) {
+            console.error(
+                "❌ Error al cargar citas:",
+                error
+            );
 
-                console.error(
-                    "❌ Error leyendo citas:",
-                    error
-                );
-
-
-                citas = [];
-
-                mostrarCitas();
-
-                mostrarProximaCita();
-
-                actualizarDashboard();
-
-
-                const contenedor =
-                    document.getElementById(
-                        "listaCitas"
-                    );
-
-
-                if (contenedor) {
-
-                    contenedor.innerHTML = `
-
-                        <p>
-                            ❌ No se pudieron cargar tus citas.
-                        </p>
-
-                    `;
-
-                }
-
-            }
-
-        );
-
+            actualizarDashboard();
+        }
+    );
 }
 
 cargarRecordatoriosDesdeFirebase();
