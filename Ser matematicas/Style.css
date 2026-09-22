@@ -1224,3 +1224,48 @@ body {
 
     min-height: 100vh;
 }
+
+/* =========================================================
+   REMOVE WHITE PAGE BACKGROUND
+   ========================================================= */
+
+html {
+    min-height: 100%;
+    background: #dbeafe;
+}
+
+body {
+    min-height: 100vh;
+    background:
+        radial-gradient(circle at 10% 10%, rgba(59, 130, 246, 0.25), transparent 28%),
+        radial-gradient(circle at 90% 15%, rgba(14, 165, 233, 0.22), transparent 30%),
+        radial-gradient(circle at 50% 100%, rgba(37, 99, 235, 0.18), transparent 35%),
+        linear-gradient(135deg, #dbeafe 0%, #eff6ff 45%, #dff6ff 100%);
+    background-attachment: fixed;
+}
+
+/* Keep the main page transparent so the gradient is visible */
+main {
+    background: transparent;
+}
+
+.seccion {
+    background: transparent;
+}
+
+/* Make the welcome area feel integrated with the background */
+.bienvenida {
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(10px);
+    padding: 28px;
+    border-radius: 24px;
+    margin-bottom: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.7);
+}
+
+/* Keep cards white but slightly translucent */
+.tarjeta,
+.dashboard-card,
+.dashboard-recordatorios {
+    background: rgba(255, 255, 255, 0.92);
+}
