@@ -3,192 +3,79 @@
    SCRIPT PRINCIPAL
    ========================================================= */
 
-   /* =========================================================
-   RECORDATORIOS DE SALUD
+
+/* =========================================================
+   FIREBASE
    ========================================================= */
 
-let recordatorios = [];
+import {
+    getAuth,
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+
+import {
+    getFirestore,
+    collection,
+    addDoc,
+    onSnapshot,
+    deleteDoc,
+    doc,
+    updateDoc,
+    serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+
+import { app } from "./firebase-config.js";
+
+
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+console.log("🔥 Firebase conectado correctamente");
 
 
 /* =========================================================
-   CREAR RECORDATORIO
+   DATOS DE LA APLICACIÓN
    ========================================================= */
 
-async function crearRecordatorio() {
+let salud = {
+    agua: 0,
+    sueno: 0,
+    actividad: false,
+    alimentacion: false,
+    dientes: false
+};
 
-    /*
-       Comprobar usuario.
-    */
+let citas = [];
+let recordatorios = [];
 
-    if (!usuarioActual) {
+let usuarioActual = null;
 
-        alert(
-            "🔐 Debes iniciar sesión para crear un recordatorio."
-        );
-
-        return;
-    }
-
-
-    /*
-       Obtener campos del formulario.
-    */
-
-    const campoTitulo =
-        document.getElementById(
-            "tituloRecordatorio"
-        );
-
-    const campoTipo =
-        document.getElementById(
-            "tipoRecordatorio"
-        );
-
-    const campoFecha =
-        document.getElementById(
-            "fechaRecordatorio"
-        );
-
-    const campoHora =
-        document.getElementById(
-            "horaRecordatorio"
-        );
+let detenerListenerCitas = null;
+let detenerListenerRecordatorios = null;
 
 
-    /*
-       Obtener valores.
-    */
+/* =========================================================
+   DATOS LOCALES
+   ========================================================= */
 
-    const titulo =
-        campoTitulo.value.trim();
+const datosGuardados =
+    localStorage.getItem("healthTrack");
 
-    const tipo =
-        campoTipo.value;
-
-    const fecha =
-        campoFecha.value;
-
-    const hora =
-        campoHora.value;
-
-
-    /*
-       Validar información.
-    */
-
-    if (!titulo) {
-
-        alert(
-            "⚠️ Escribe un título para el recordatorio."
-        );
-
-        return;
-    }
-
-
-    if (!fecha) {
-
-        alert(
-            "⚠️ Selecciona una fecha."
-        );
-
-        return;
-    }
-
-
-    if (!hora) {
-
-        alert(
-            "⚠️ Selecciona una hora."
-        );
-
-        return;
-    }
-
-
-    /*
-       Crear referencia:
-       
-       users/
-          UID/
-             recordatorios/
-    */
-
-    const recordatoriosRef =
-        collection(
-            db,
-            "users",
-            usuarioActual.uid,
-            "recordatorios"
-        );
-
-
-    /*
-       Datos del recordatorio.
-    */
-
-    const nuevoRecordatorio = {
-
-        titulo: titulo,
-
-        tipo: tipo,
-
-        fecha: fecha,
-
-        hora: hora,
-
-        completado: false,
-
-        creadoEn: serverTimestamp()
-
-    };
-
+if (datosGuardados) {
 
     try {
 
-        /*
-           Guardar en Firestore.
-        */
+        const datos =
+            JSON.parse(datosGuardados);
 
-        const documento =
-            await addDoc(
-                recordatoriosRef,
-                nuevoRecordatorio
-            );
-
-
-        console.log(
-            "✅ Recordatorio guardado:",
-            documento.id
-        );
-
-
-        /*
-           Limpiar formulario.
-        */
-
-        campoTitulo.value = "";
-
-        campoFecha.value = "";
-
-        campoHora.value = "";
-
-
-        alert(
-            "🔔 Recordatorio creado correctamente."
-        );
-
+        salud =
+            datos.salud || salud;
 
     } catch (error) {
 
         console.error(
-            "❌ Error creando recordatorio:",
+            "❌ Error leyendo datos locales:",
             error
-        );
-
-
-        alert(
-            "❌ No se pudo crear el recordatorio."
         );
 
     }
@@ -196,19 +83,23 @@ async function crearRecordatorio() {
 }
 
 
+function guardarDatos() {
+
+    localStorage.setItem(
+        "healthTrack",
+        JSON.stringify({
+            salud: salud
+        })
+    );
+
+}
+
+
 /* =========================================================
-   CARGAR RECORDATORIOS DESDE FIRESTORE
-   ========================================================= */
-/* =========================================================
-   DASHBOARD DE SALUD
+   DASHBOARD
    ========================================================= */
 
 function actualizarDashboard() {
-
-    /*
-       Si no hay usuario,
-       mostrar información básica.
-    */
 
     if (!usuarioActual) {
 
@@ -228,15 +119,12 @@ function actualizarDashboard() {
     }
 
 
-    /*
-       SALUDO
-    */
+    /* SALUDO */
 
     const saludo =
         document.getElementById(
             "saludoDashboard"
         );
-
 
     if (saludo) {
 
@@ -245,22 +133,18 @@ function actualizarDashboard() {
             usuarioActual.email ||
             "Usuario";
 
-
         saludo.textContent =
             `👋 Hola, ${nombre}`;
 
     }
 
 
-    /*
-       TOTAL DE CITAS
-    */
+    /* TOTAL DE CITAS */
 
     const elementoCitas =
         document.getElementById(
             "dashboardCitas"
         );
-
 
     if (elementoCitas) {
 
@@ -270,9 +154,7 @@ function actualizarDashboard() {
     }
 
 
-    /*
-       RECORDATORIOS PENDIENTES
-    */
+    /* RECORDATORIOS PENDIENTES */
 
     const pendientes =
         recordatorios.filter(
@@ -303,7 +185,6 @@ function actualizarDashboard() {
             "dashboardRecordatorios"
         );
 
-
     if (elementoRecordatorios) {
 
         elementoRecordatorios.textContent =
@@ -312,15 +193,12 @@ function actualizarDashboard() {
     }
 
 
-    /*
-       RECORDATORIOS COMPLETADOS
-    */
+    /* RECORDATORIOS COMPLETADOS */
 
     const elementoCompletados =
         document.getElementById(
             "dashboardCompletados"
         );
-
 
     if (elementoCompletados) {
 
@@ -330,15 +208,12 @@ function actualizarDashboard() {
     }
 
 
-    /*
-       PRÓXIMA CITA
-    */
+    /* PRÓXIMA CITA */
 
     const elementoProximaCita =
         document.getElementById(
             "dashboardProximaCita"
         );
-
 
     if (elementoProximaCita) {
 
@@ -374,16 +249,12 @@ function actualizarDashboard() {
             );
 
 
-        if (
-            citasFuturas.length === 0
-        ) {
+        if (citasFuturas.length === 0) {
 
             elementoProximaCita.innerHTML = `
-
                 <p>
                     No tienes citas próximas.
                 </p>
-
             `;
 
         } else {
@@ -393,9 +264,11 @@ function actualizarDashboard() {
 
 
             elementoProximaCita.innerHTML = `
-
                 <strong>
-                    ${proxima.tipo || "Cita médica"}
+                    ${escapeHTML(
+                        proxima.tipo ||
+                        "Cita médica"
+                    )}
                 </strong>
 
                 <p>
@@ -403,9 +276,8 @@ function actualizarDashboard() {
                 </p>
 
                 <p>
-                    ⏰ ${proxima.hora}
+                    ⏰ ${escapeHTML(proxima.hora)}
                 </p>
-
             `;
 
         }
@@ -413,15 +285,12 @@ function actualizarDashboard() {
     }
 
 
-    /*
-       LISTA DE RECORDATORIOS
-    */
+    /* LISTA DE RECORDATORIOS DEL DASHBOARD */
 
     const lista =
         document.getElementById(
             "dashboardListaRecordatorios"
         );
-
 
     if (!lista) {
 
@@ -430,16 +299,12 @@ function actualizarDashboard() {
     }
 
 
-    if (
-        pendientes.length === 0
-    ) {
+    if (pendientes.length === 0) {
 
         lista.innerHTML = `
-
             <p>
                 🎉 No tienes recordatorios pendientes.
             </p>
-
         `;
 
         return;
@@ -447,13 +312,8 @@ function actualizarDashboard() {
     }
 
 
-    /*
-       Mostrar máximo 5.
-    */
-
     const proximos =
         pendientes.slice(0, 5);
-
 
     lista.innerHTML = "";
 
@@ -466,29 +326,35 @@ function actualizarDashboard() {
                     "div"
                 );
 
-
             elemento.className =
                 "dashboard-recordatorio-item";
 
 
             elemento.innerHTML = `
-
                 <div
                     class="dashboard-recordatorio-info"
                 >
 
                     <strong>
-                        ${recordatorio.tipo || "🔔"}
-                        ${recordatorio.titulo}
+                        ${escapeHTML(
+                            recordatorio.tipo ||
+                            "🔔"
+                        )}
+                        ${escapeHTML(
+                            recordatorio.titulo
+                        )}
                     </strong>
 
                     <span>
-                        📅 ${formatearFecha(recordatorio.fecha)}
-                        · ⏰ ${recordatorio.hora}
+                        📅 ${formatearFecha(
+                            recordatorio.fecha
+                        )}
+                        · ⏰ ${escapeHTML(
+                            recordatorio.hora
+                        )}
                     </span>
 
                 </div>
-
             `;
 
 
@@ -500,10 +366,268 @@ function actualizarDashboard() {
     );
 
 }
-   
+
+
 /* =========================================================
-   MOSTRAR RECORDATORIOS
+   RECORDATORIOS
    ========================================================= */
+
+async function crearRecordatorio() {
+
+    if (!usuarioActual) {
+
+        alert(
+            "🔐 Debes iniciar sesión para crear un recordatorio."
+        );
+
+        return;
+
+    }
+
+
+    const campoTitulo =
+        document.getElementById(
+            "tituloRecordatorio"
+        );
+
+    const campoTipo =
+        document.getElementById(
+            "tipoRecordatorio"
+        );
+
+    const campoFecha =
+        document.getElementById(
+            "fechaRecordatorio"
+        );
+
+    const campoHora =
+        document.getElementById(
+            "horaRecordatorio"
+        );
+
+
+    const titulo =
+        campoTitulo.value.trim();
+
+    const tipo =
+        campoTipo.value;
+
+    const fecha =
+        campoFecha.value;
+
+    const hora =
+        campoHora.value;
+
+
+    if (!titulo) {
+
+        alert(
+            "⚠️ Escribe un título para el recordatorio."
+        );
+
+        return;
+
+    }
+
+
+    if (!fecha) {
+
+        alert(
+            "⚠️ Selecciona una fecha."
+        );
+
+        return;
+
+    }
+
+
+    if (!hora) {
+
+        alert(
+            "⚠️ Selecciona una hora."
+        );
+
+        return;
+
+    }
+
+
+    const recordatoriosRef =
+        collection(
+            db,
+            "users",
+            usuarioActual.uid,
+            "recordatorios"
+        );
+
+
+    const nuevoRecordatorio = {
+
+        titulo: titulo,
+
+        tipo: tipo,
+
+        fecha: fecha,
+
+        hora: hora,
+
+        completado: false,
+
+        creadoEn: serverTimestamp()
+
+    };
+
+
+    try {
+
+        const documento =
+            await addDoc(
+                recordatoriosRef,
+                nuevoRecordatorio
+            );
+
+
+        console.log(
+            "✅ Recordatorio guardado:",
+            documento.id
+        );
+
+
+        campoTitulo.value = "";
+        campoFecha.value = "";
+        campoHora.value = "";
+
+
+        alert(
+            "🔔 Recordatorio creado correctamente."
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "❌ Error creando recordatorio:",
+            error
+        );
+
+
+        alert(
+            "❌ No se pudo crear el recordatorio."
+        );
+
+    }
+
+}
+
+
+function cargarRecordatoriosDesdeFirebase() {
+
+    console.log(
+        "🔔 Iniciando carga de recordatorios..."
+    );
+
+
+    if (detenerListenerRecordatorios) {
+
+        detenerListenerRecordatorios();
+
+        detenerListenerRecordatorios = null;
+
+    }
+
+
+    if (!usuarioActual) {
+
+        recordatorios = [];
+
+        mostrarRecordatorios();
+
+        actualizarDashboard();
+
+        return;
+
+    }
+
+
+    const recordatoriosRef =
+        collection(
+            db,
+            "users",
+            usuarioActual.uid,
+            "recordatorios"
+        );
+
+
+    detenerListenerRecordatorios =
+        onSnapshot(
+
+            recordatoriosRef,
+
+            function(snapshot) {
+
+                recordatorios = [];
+
+
+                snapshot.forEach(
+                    function(documento) {
+
+                        const datos =
+                            documento.data();
+
+
+                        recordatorios.push({
+
+                            id:
+                                documento.id,
+
+                            titulo:
+                                datos.titulo ||
+                                "Sin título",
+
+                            tipo:
+                                datos.tipo ||
+                                "📌 Otro",
+
+                            fecha:
+                                datos.fecha ||
+                                "",
+
+                            hora:
+                                datos.hora ||
+                                "",
+
+                            completado:
+                                datos.completado === true
+
+                        });
+
+                    }
+                );
+
+
+                console.log(
+                    "🔔 Recordatorios cargados:",
+                    recordatorios.length
+                );
+
+
+                mostrarRecordatorios();
+
+            },
+
+            function(error) {
+
+                console.error(
+                    "❌ ERROR LEYENDO RECORDATORIOS:",
+                    error
+                );
+
+            }
+
+        );
+
+}
+
 
 function mostrarRecordatorios() {
 
@@ -513,66 +637,47 @@ function mostrarRecordatorios() {
         );
 
 
-    /*
-       Si todavía no existe el elemento,
-       terminamos.
-    */
-
     if (!contenedor) {
+
+        actualizarDashboard();
 
         return;
 
     }
 
-
-    /*
-       Limpiar contenido anterior.
-    */
 
     contenedor.innerHTML = "";
 
 
-    /*
-       Usuario no conectado.
-    */
-
     if (!usuarioActual) {
 
         contenedor.innerHTML = `
-
             <p>
                 🔐 Inicia sesión para ver tus recordatorios.
             </p>
-
         `;
+
+        actualizarDashboard();
 
         return;
 
     }
 
-
-    /*
-       No hay recordatorios.
-    */
 
     if (recordatorios.length === 0) {
 
         contenedor.innerHTML = `
-
             <p>
                 🔔 No tienes recordatorios todavía.
             </p>
-
         `;
+
+        actualizarDashboard();
 
         return;
 
     }
 
-
-    /*
-       Crear cada recordatorio.
-    */
 
     recordatorios.forEach(
         function(recordatorio) {
@@ -588,13 +693,7 @@ function mostrarRecordatorios() {
             );
 
 
-            /*
-               Estado visual.
-            */
-
-            if (
-                recordatorio.completado
-            ) {
+            if (recordatorio.completado) {
 
                 tarjeta.classList.add(
                     "completado"
@@ -602,10 +701,6 @@ function mostrarRecordatorios() {
 
             }
 
-
-            /*
-               Crear título.
-            */
 
             const titulo =
                 document.createElement(
@@ -616,10 +711,6 @@ function mostrarRecordatorios() {
                 `${recordatorio.tipo || "🔔"} ${recordatorio.titulo}`;
 
 
-            /*
-               Crear fecha.
-            */
-
             const fecha =
                 document.createElement(
                     "p"
@@ -629,10 +720,6 @@ function mostrarRecordatorios() {
                 `📅 ${formatearFecha(recordatorio.fecha)}`;
 
 
-            /*
-               Crear hora.
-            */
-
             const hora =
                 document.createElement(
                     "p"
@@ -641,10 +728,6 @@ function mostrarRecordatorios() {
             hora.textContent =
                 `⏰ ${recordatorio.hora}`;
 
-
-            /*
-               Estado.
-            */
 
             const estado =
                 document.createElement(
@@ -657,15 +740,10 @@ function mostrarRecordatorios() {
                     : "🔔 Pendiente";
 
 
-            /*
-               Botón completar.
-            */
-
             const botonCompletar =
                 document.createElement(
                     "button"
                 );
-
 
             botonCompletar.textContent =
                 recordatorio.completado
@@ -684,15 +762,10 @@ function mostrarRecordatorios() {
                 };
 
 
-            /*
-               Botón eliminar.
-            */
-
             const botonEliminar =
                 document.createElement(
                     "button"
                 );
-
 
             botonEliminar.textContent =
                 "🗑️ Eliminar";
@@ -708,33 +781,12 @@ function mostrarRecordatorios() {
                 };
 
 
-            /*
-               Agregar elementos.
-            */
-
-            tarjeta.appendChild(
-                titulo
-            );
-
-            tarjeta.appendChild(
-                fecha
-            );
-
-            tarjeta.appendChild(
-                hora
-            );
-
-            tarjeta.appendChild(
-                estado
-            );
-
-            tarjeta.appendChild(
-                botonCompletar
-            );
-
-            tarjeta.appendChild(
-                botonEliminar
-            );
+            tarjeta.appendChild(titulo);
+            tarjeta.appendChild(fecha);
+            tarjeta.appendChild(hora);
+            tarjeta.appendChild(estado);
+            tarjeta.appendChild(botonCompletar);
+            tarjeta.appendChild(botonEliminar);
 
 
             contenedor.appendChild(
@@ -743,27 +795,19 @@ function mostrarRecordatorios() {
 
         }
     );
-actualizarDashboard();
+
+
+    actualizarDashboard();
+
 }
 
-
-/* =========================================================
-   CAMBIAR ESTADO DEL RECORDATORIO
-   ========================================================= */
 
 async function cambiarEstadoRecordatorio(
     id,
     completado
 ) {
 
-    if (!usuarioActual) {
-
-        return;
-
-    }
-
-
-    if (!id) {
+    if (!usuarioActual || !id) {
 
         return;
 
@@ -785,10 +829,7 @@ async function cambiarEstadoRecordatorio(
         await updateDoc(
             referencia,
             {
-
-                completado:
-                    completado
-
+                completado: completado
             }
         );
 
@@ -815,20 +856,9 @@ async function cambiarEstadoRecordatorio(
 }
 
 
-/* =========================================================
-   ELIMINAR RECORDATORIO
-   ========================================================= */
-
 async function eliminarRecordatorio(id) {
 
-    if (!usuarioActual) {
-
-        return;
-
-    }
-
-
-    if (!id) {
+    if (!usuarioActual || !id) {
 
         return;
 
@@ -886,170 +916,6 @@ async function eliminarRecordatorio(id) {
 
 }
 
-/* =========================================================
-   FIREBASE
-   ========================================================= */
-
-import {
-    getAuth,
-    onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
-
-
-import {
-    getFirestore,
-    collection,
-    addDoc,
-    onSnapshot,
-    deleteDoc,
-    doc,
-    updateDoc,
-    serverTimestamp
-} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
-
-
-import { app } from "./firebase-config.js";
-
-
-/* =========================================================
-   INICIALIZAR FIREBASE
-   ========================================================= */
-
-const auth = getAuth(app);
-
-const db = getFirestore(app);
-
-
-console.log("🔥 Firebase conectado correctamente");
-
-
-
-/* =========================================================
-   DATOS DE LA APLICACIÓN
-   ========================================================= */
-
-let salud = {
-
-    agua: 0,
-
-    sueno: 0,
-
-    actividad: false,
-
-    alimentacion: false,
-
-    dientes: false
-
-};
-
-
-
-/*
-   Las citas ya NO se guardan en localStorage.
-
-   Ahora se guardan en:
-
-   users
-      └── UID
-           └── citas
-                └── ID_DE_CITA
-
-*/
-
-let citas = [];
-
-
-/*
-   Usuario actualmente conectado.
-*/
-
-let usuarioActual = null;
-
-let detenerListenerRecordatorios = null;
-
-/*
-   Función para detener el listener
-   de Firestore cuando sea necesario.
-*/
-
-let detenerListenerCitas = null;
-
-
-
-/* =========================================================
-   CARGAR DATOS LOCALES DE SALUD
-   ========================================================= */
-
-/*
-   Mantenemos temporalmente los hábitos en localStorage.
-
-   Las CITAS, en cambio, utilizan Firebase.
-
-   Más adelante podemos pasar también los hábitos
-   a Firestore para que funcionen igual en todos
-   los dispositivos.
-*/
-
-
-const datosGuardados =
-    localStorage.getItem("healthTrack");
-
-
-if (datosGuardados) {
-
-    try {
-
-        const datos =
-            JSON.parse(datosGuardados);
-
-
-        salud =
-            datos.salud || salud;
-
-
-    } catch (error) {
-
-        console.error(
-            "❌ Error leyendo datos locales:",
-            error
-        );
-
-    }
-
-}
-
-
-
-/* =========================================================
-   GUARDAR DATOS LOCALES
-   ========================================================= */
-
-/*
-   IMPORTANTE:
-
-   Aquí solamente guardamos salud.
-
-   Las citas NO se guardan aquí porque ahora
-   pertenecen a Firebase.
-*/
-
-function guardarDatos() {
-
-    localStorage.setItem(
-
-        "healthTrack",
-
-        JSON.stringify({
-
-            salud: salud
-
-        })
-
-    );
-
-}
-
-
 
 /* =========================================================
    NAVEGACIÓN
@@ -1058,7 +924,9 @@ function guardarDatos() {
 function mostrarSeccion(nombre) {
 
     const secciones =
-        document.querySelectorAll(".seccion");
+        document.querySelectorAll(
+            ".seccion"
+        );
 
 
     secciones.forEach(
@@ -1085,31 +953,26 @@ function mostrarSeccion(nombre) {
     }
 
 
-    /*
-       Si el usuario entra a Citas,
-       nos aseguramos de mostrar
-       la información más reciente.
-    */
-
     if (nombre === "citas") {
 
-    mostrarCitas();
+        mostrarCitas();
+
+        mostrarProximaCita();
+
+    }
+
+
+    if (nombre === "recordatorios") {
+
+        mostrarRecordatorios();
+
+    }
 
 }
-
-
-if (nombre === "recordatorios") {
-
-    mostrarRecordatorios();
-
-}
-
-}
-
 
 
 /* =========================================================
-   AGREGAR AGUA
+   HÁBITOS / SALUD
    ========================================================= */
 
 function agregarAgua() {
@@ -1141,11 +1004,6 @@ function agregarAgua() {
 
 }
 
-
-
-/* =========================================================
-   SUEÑO
-   ========================================================= */
 
 function guardarSueno() {
 
@@ -1208,11 +1066,6 @@ function guardarSueno() {
 }
 
 
-
-/* =========================================================
-   ACTIVIDAD FÍSICA
-   ========================================================= */
-
 function marcarActividad() {
 
     salud.actividad =
@@ -1234,17 +1087,10 @@ function marcarActividad() {
     }
 
 
-    if (salud.actividad) {
-
-        boton.textContent =
-            "✅ Actividad realizada";
-
-    } else {
-
-        boton.textContent =
-            "❌ No realizada";
-
-    }
+    boton.textContent =
+        salud.actividad
+            ? "✅ Actividad realizada"
+            : "❌ No realizada";
 
 
     guardarDatos();
@@ -1253,11 +1099,6 @@ function marcarActividad() {
 
 }
 
-
-
-/* =========================================================
-   ALIMENTACIÓN
-   ========================================================= */
 
 function marcarAlimentacion() {
 
@@ -1280,17 +1121,10 @@ function marcarAlimentacion() {
     }
 
 
-    if (salud.alimentacion) {
-
-        boton.textContent =
-            "✅ Alimentación registrada";
-
-    } else {
-
-        boton.textContent =
-            "❌ Registrar alimentación";
-
-    }
+    boton.textContent =
+        salud.alimentacion
+            ? "✅ Alimentación registrada"
+            : "❌ Registrar alimentación";
 
 
     guardarDatos();
@@ -1299,11 +1133,6 @@ function marcarAlimentacion() {
 
 }
 
-
-
-/* =========================================================
-   HIGIENE DENTAL
-   ========================================================= */
 
 function marcarDientes() {
 
@@ -1326,17 +1155,10 @@ function marcarDientes() {
     }
 
 
-    if (salud.dientes) {
-
-        boton.textContent =
-            "✅ Realizada";
-
-    } else {
-
-        boton.textContent =
-            "❌ Realizada";
-
-    }
+    boton.textContent =
+        salud.dientes
+            ? "✅ Realizada"
+            : "❌ Realizada";
 
 
     guardarDatos();
@@ -1346,21 +1168,12 @@ function marcarDientes() {
 }
 
 
-
-/* =========================================================
-   CALCULAR PROGRESO
-   ========================================================= */
-
 function actualizarProgreso() {
 
     let puntos = 0;
 
-    let total = 5;
+    const total = 5;
 
-
-    /*
-       AGUA
-    */
 
     if (salud.agua >= 8) {
 
@@ -1369,20 +1182,12 @@ function actualizarProgreso() {
     }
 
 
-    /*
-       SUEÑO
-    */
-
     if (salud.sueno >= 7) {
 
         puntos++;
 
     }
 
-
-    /*
-       ACTIVIDAD
-    */
 
     if (salud.actividad) {
 
@@ -1391,20 +1196,12 @@ function actualizarProgreso() {
     }
 
 
-    /*
-       ALIMENTACIÓN
-    */
-
     if (salud.alimentacion) {
 
         puntos++;
 
     }
 
-
-    /*
-       DIENTES
-    */
 
     if (salud.dientes) {
 
@@ -1454,11 +1251,6 @@ function actualizarProgreso() {
 }
 
 
-
-/* =========================================================
-   HABITOS
-   ========================================================= */
-
 function marcarHabito(boton) {
 
     if (!boton) {
@@ -1484,36 +1276,19 @@ function marcarHabito(boton) {
     );
 
 
-    if (
+    boton.textContent =
         li.classList.contains(
             "habito-completado"
         )
-    ) {
-
-        boton.textContent =
-            "✅ Completado";
-
-    } else {
-
-        boton.textContent =
-            "Completar";
-
-    }
+            ? "✅ Completado"
+            : "Completar";
 
 }
 
 
-
 /* =========================================================
    CITAS MÉDICAS
-   FIRESTORE
    ========================================================= */
-
-
-/*
-   Esta función comprueba que haya
-   un usuario conectado.
-*/
 
 function usuarioEstaConectado() {
 
@@ -1533,16 +1308,7 @@ function usuarioEstaConectado() {
 }
 
 
-
-/* =========================================================
-   AGREGAR CITA
-   ========================================================= */
-
 async function agregarCita() {
-
-    /*
-       Comprobar usuario
-    */
 
     if (!usuarioEstaConectado()) {
 
@@ -1551,37 +1317,26 @@ async function agregarCita() {
     }
 
 
-    /*
-       Obtener campos
-    */
-
     const campoTipo =
         document.getElementById(
             "tipoCita"
         );
-
 
     const campoFecha =
         document.getElementById(
             "fechaCita"
         );
 
-
     const campoHora =
         document.getElementById(
             "horaCita"
         );
-
 
     const campoNota =
         document.getElementById(
             "notaCita"
         );
 
-
-    /*
-       Comprobar que existan
-    */
 
     if (
         !campoTipo ||
@@ -1599,29 +1354,18 @@ async function agregarCita() {
     }
 
 
-    /*
-       Obtener valores
-    */
-
     const tipo =
         campoTipo.value.trim();
-
 
     const fecha =
         campoFecha.value;
 
-
     const hora =
         campoHora.value;
-
 
     const nota =
         campoNota.value.trim();
 
-
-    /*
-       Validación
-    */
 
     if (
         !tipo ||
@@ -1638,13 +1382,9 @@ async function agregarCita() {
     }
 
 
-    /*
-       Evitar citas con fechas inválidas.
-    */
-
     const fechaCita =
         new Date(
-            fecha + "T" + hora
+            `${fecha}T${hora}`
         );
 
 
@@ -1662,10 +1402,6 @@ async function agregarCita() {
 
     }
 
-
-    /*
-       Objeto que enviaremos a Firestore.
-    */
 
     const nuevaCita = {
 
@@ -1690,31 +1426,14 @@ async function agregarCita() {
         );
 
 
-        /*
-           Ruta:
-
-           users/
-             UID/
-               citas/
-        */
-
         const citasRef =
             collection(
-
                 db,
-
                 "users",
-
                 usuarioActual.uid,
-
                 "citas"
-
             );
 
-
-        /*
-           Crear documento.
-        */
 
         const documento =
             await addDoc(
@@ -1729,33 +1448,15 @@ async function agregarCita() {
         );
 
 
-        /*
-           Limpiar formulario.
-        */
-
         campoTipo.value = "";
-
         campoFecha.value = "";
-
         campoHora.value = "";
-
         campoNota.value = "";
 
-
-        /*
-           Mostrar mensaje.
-        */
 
         alert(
             "✅ Cita guardada correctamente."
         );
-
-
-        /*
-           mostrarCitas() se actualizará
-           automáticamente gracias a
-           onSnapshot().
-        */
 
 
     } catch (error) {
@@ -1775,94 +1476,64 @@ async function agregarCita() {
 }
 
 
-
 /* =========================================================
    CARGAR CITAS DESDE FIRESTORE
    ========================================================= */
 
-function cargarRecordatoriosDesdeFirebase() {
+function cargarCitasDesdeFirebase() {
 
-    console.log("🔔 Iniciando carga de recordatorios...");
+    console.log(
+        "📅 Iniciando carga de citas..."
+    );
 
-    // Limpiar listener anterior
-    if (detenerListenerRecordatorios) {
 
-        detenerListenerRecordatorios();
+    if (detenerListenerCitas) {
 
-        detenerListenerRecordatorios = null;
+        detenerListenerCitas();
+
+        detenerListenerCitas = null;
 
     }
 
-    // Si no hay usuario
+
     if (!usuarioActual) {
 
-        console.log(
-            "⚠️ No hay usuario conectado para cargar recordatorios."
-        );
+        citas = [];
 
-        recordatorios = [];
+        mostrarCitas();
 
-        mostrarRecordatorios();
+        mostrarProximaCita();
 
         actualizarDashboard();
 
         return;
-    }
-
-    console.log(
-        "👤 Usuario para recordatorios:",
-        usuarioActual.uid
-    );
-
-
-    // Mostrar estado inicial
-    const contenedor =
-        document.getElementById(
-            "listaRecordatorios"
-        );
-
-    if (contenedor) {
-
-        contenedor.innerHTML = `
-            <p>🔄 Conectando con tus recordatorios...</p>
-        `;
 
     }
 
 
-    // Ruta:
-    // users / UID / recordatorios
-
-    const recordatoriosRef =
+    const citasRef =
         collection(
             db,
             "users",
             usuarioActual.uid,
-            "recordatorios"
+            "citas"
         );
 
 
     console.log(
         "📡 Escuchando Firestore:",
-        `users/${usuarioActual.uid}/recordatorios`
+        `users/${usuarioActual.uid}/citas`
     );
 
 
-    // Listener en tiempo real
-
-    detenerListenerRecordatorios =
+    detenerListenerCitas =
         onSnapshot(
 
-            recordatoriosRef,
+            citasRef,
 
             function(snapshot) {
 
-                console.log(
-                    "📦 Firestore respondió para recordatorios."
-                );
-
-
-                recordatorios = [];
+                citas = [];
 
 
                 snapshot.forEach(
@@ -1872,25 +1543,30 @@ function cargarRecordatoriosDesdeFirebase() {
                             documento.data();
 
 
-                        recordatorios.push({
+                        citas.push({
 
                             id:
                                 documento.id,
 
-                            titulo:
-                                datos.titulo || "Sin título",
-
                             tipo:
-                                datos.tipo || "📌 Otro",
+                                datos.tipo ||
+                                "Cita médica",
 
                             fecha:
-                                datos.fecha || "",
+                                datos.fecha ||
+                                "",
 
                             hora:
-                                datos.hora || "",
+                                datos.hora ||
+                                "",
 
-                            completado:
-                                datos.completado === true
+                            nota:
+                                datos.nota ||
+                                "",
+
+                            creadaEn:
+                                datos.creadaEn ||
+                                ""
 
                         });
 
@@ -1898,55 +1574,82 @@ function cargarRecordatoriosDesdeFirebase() {
                 );
 
 
-                console.log(
-                    "🔔 Recordatorios cargados:",
-                    recordatorios.length
+                /*
+                   Ordenar por fecha y hora.
+                */
+
+                citas.sort(
+                    function(a, b) {
+
+                        const fechaA =
+                            new Date(
+                                `${a.fecha}T${a.hora || "00:00"}`
+                            );
+
+                        const fechaB =
+                            new Date(
+                                `${b.fecha}T${b.hora || "00:00"}`
+                            );
+
+                        return (
+                            fechaA - fechaB
+                        );
+
+                    }
                 );
 
 
-                // Mostrar inmediatamente en la página
+                console.log(
+                    "📅 Citas cargadas:",
+                    citas.length
+                );
 
-                mostrarRecordatorios();
+
+                console.log(
+                    "📦 Datos de citas:",
+                    citas
+                );
+
+
+                /*
+                   Actualizar la lista.
+                */
+
+                mostrarCitas();
+
+
+                /*
+                   Actualizar próxima cita.
+                */
+
+                mostrarProximaCita();
+
+
+                /*
+                   ⭐ FIX:
+                   Actualizar dashboard inmediatamente.
+                */
+
+                actualizarDashboard();
 
             },
 
             function(error) {
 
                 console.error(
-                    "❌ ERROR LEYENDO RECORDATORIOS:",
+                    "❌ ERROR LEYENDO CITAS:",
                     error
                 );
 
 
-                const contenedor =
-                    document.getElementById(
-                        "listaRecordatorios"
-                    );
-
-
-                if (contenedor) {
-
-                    contenedor.innerHTML = `
-                        <p style="color:red;">
-                            ❌ No se pudieron cargar los recordatorios.
-                        </p>
-
-                        <p>
-                            Revisa la consola para ver el error.
-                        </p>
-                    `;
-
-                }
+                actualizarDashboard();
 
             }
 
         );
 
-}   
+}
 
-/* =========================================================
-   MOSTRAR CITAS
-   ========================================================= */
 
 function mostrarCitas() {
 
@@ -1955,11 +1658,6 @@ function mostrarCitas() {
             "listaCitas"
         );
 
-
-    /*
-       Si el elemento todavía no existe,
-       simplemente terminamos.
-    */
 
     if (!contenedor) {
 
@@ -1971,47 +1669,31 @@ function mostrarCitas() {
     contenedor.innerHTML = "";
 
 
-    /*
-       No usuario
-    */
-
     if (!usuarioActual) {
 
         contenedor.innerHTML = `
-
             <p>
                 🔐 Inicia sesión para ver tus citas.
             </p>
-
         `;
 
         return;
 
     }
 
-
-    /*
-       Sin citas
-    */
 
     if (citas.length === 0) {
 
         contenedor.innerHTML = `
-
             <p>
                 No tienes citas registradas.
             </p>
-
         `;
 
         return;
 
     }
 
-
-    /*
-       Crear cada tarjeta.
-    */
 
     citas.forEach(
         function(cita) {
@@ -2027,13 +1709,6 @@ function mostrarCitas() {
             );
 
 
-            /*
-               Crear contenido sin utilizar
-               datos directamente como HTML
-               para reducir problemas con
-               texto introducido por usuarios.
-            */
-
             const contenido =
                 document.createElement(
                     "div"
@@ -2047,7 +1722,8 @@ function mostrarCitas() {
 
 
             titulo.textContent =
-                "🩺 " + cita.tipo;
+                "🩺 " +
+                cita.tipo;
 
 
             contenido.appendChild(
@@ -2062,17 +1738,13 @@ function mostrarCitas() {
             );
 
 
-            const fechaTexto =
+            contenido.appendChild(
                 document.createTextNode(
                     "📅 " +
                     formatearFecha(
                         cita.fecha
                     )
-                );
-
-
-            contenido.appendChild(
-                fechaTexto
+                )
             );
 
 
@@ -2083,21 +1755,13 @@ function mostrarCitas() {
             );
 
 
-            const horaTexto =
+            contenido.appendChild(
                 document.createTextNode(
                     "⏰ " +
                     cita.hora
-                );
-
-
-            contenido.appendChild(
-                horaTexto
+                )
             );
 
-
-            /*
-               Nota
-            */
 
             if (cita.nota) {
 
@@ -2108,23 +1772,15 @@ function mostrarCitas() {
                 );
 
 
-                const notaTexto =
+                contenido.appendChild(
                     document.createTextNode(
                         "📝 " +
                         cita.nota
-                    );
-
-
-                contenido.appendChild(
-                    notaTexto
+                    )
                 );
 
             }
 
-
-            /*
-               Botón eliminar
-            */
 
             const boton =
                 document.createElement(
@@ -2152,7 +1808,6 @@ function mostrarCitas() {
                 contenido
             );
 
-
             div.appendChild(
                 boton
             );
@@ -2168,16 +1823,7 @@ function mostrarCitas() {
 }
 
 
-
-/* =========================================================
-   ELIMINAR CITA
-   ========================================================= */
-
 async function eliminarCita(id) {
-
-    /*
-       Comprobar usuario.
-    */
 
     if (!usuarioEstaConectado()) {
 
@@ -2185,10 +1831,6 @@ async function eliminarCita(id) {
 
     }
 
-
-    /*
-       Comprobar ID.
-    */
 
     if (!id) {
 
@@ -2200,10 +1842,6 @@ async function eliminarCita(id) {
 
     }
 
-
-    /*
-       Confirmación.
-    */
 
     const confirmar =
         confirm(
@@ -2220,34 +1858,13 @@ async function eliminarCita(id) {
 
     try {
 
-        console.log(
-            "🗑️ Eliminando cita:",
-            id
-        );
-
-
-        /*
-           Ruta exacta:
-
-           users/
-             UID/
-               citas/
-                 ID
-        */
-
         const referencia =
             doc(
-
                 db,
-
                 "users",
-
                 usuarioActual.uid,
-
                 "citas",
-
                 id
-
             );
 
 
@@ -2257,7 +1874,7 @@ async function eliminarCita(id) {
 
 
         console.log(
-            "✅ Cita eliminada correctamente."
+            "🗑️ Cita eliminada correctamente."
         );
 
 
@@ -2278,60 +1895,16 @@ async function eliminarCita(id) {
 }
 
 
-
 /* =========================================================
-   FORMATEAR FECHA
-   ========================================================= */
-
-function formatearFecha(fecha) {
-
-    if (!fecha) {
-
-        return "Fecha no disponible";
-
-    }
-
-
-    /*
-       YYYY-MM-DD
-       ↓
-       DD/MM/YYYY
-    */
-
-    const partes =
-        fecha.split("-");
-
-
-    if (
-        partes.length !== 3
-    ) {
-
-        return fecha;
-
-    }
-
-
-    return (
-
-        partes[2] +
-        "/" +
-        partes[1] +
-        "/" +
-        partes[0]
-
-    );
-
-}
-
-
-
-/* =========================================================
-   OBTENER PRÓXIMA CITA
+   PRÓXIMA CITA
    ========================================================= */
 
 function obtenerProximaCita() {
 
-    if (!citas || citas.length === 0) {
+    if (
+        !citas ||
+        citas.length === 0
+    ) {
 
         return null;
 
@@ -2341,11 +1914,6 @@ function obtenerProximaCita() {
     const ahora =
         new Date();
 
-
-    /*
-       Buscar la primera cita
-       que todavía no haya pasado.
-    */
 
     for (
         let i = 0;
@@ -2357,13 +1925,19 @@ function obtenerProximaCita() {
             citas[i];
 
 
+        if (
+            !cita.fecha ||
+            !cita.hora
+        ) {
+
+            continue;
+
+        }
+
+
         const fecha =
             new Date(
-
-                cita.fecha +
-                "T" +
-                cita.hora
-
+                `${cita.fecha}T${cita.hora}`
             );
 
 
@@ -2384,22 +1958,11 @@ function obtenerProximaCita() {
 }
 
 
-
-/* =========================================================
-   MOSTRAR PRÓXIMA CITA
-   ========================================================= */
-
 function mostrarProximaCita() {
 
     const proxima =
         obtenerProximaCita();
 
-
-    /*
-       Esta función busca varios posibles
-       elementos para que podamos integrarla
-       fácilmente en tu index.html.
-    */
 
     const contenedor =
         document.getElementById(
@@ -2417,11 +1980,9 @@ function mostrarProximaCita() {
     if (!usuarioActual) {
 
         contenedor.innerHTML = `
-
             <p>
                 🔐 Inicia sesión para ver tu próxima cita.
             </p>
-
         `;
 
         return;
@@ -2432,11 +1993,9 @@ function mostrarProximaCita() {
     if (!proxima) {
 
         contenedor.innerHTML = `
-
             <p>
                 📅 No tienes próximas citas.
             </p>
-
         `;
 
         return;
@@ -2445,7 +2004,6 @@ function mostrarProximaCita() {
 
 
     contenedor.innerHTML = `
-
         <strong>
             🩺 ${escapeHTML(proxima.tipo)}
         </strong>
@@ -2457,15 +2015,13 @@ function mostrarProximaCita() {
         <br>
 
         ⏰ ${escapeHTML(proxima.hora)}
-
     `;
 
 }
 
 
-
 /* =========================================================
-   ESCAPAR TEXTO PARA PREVENIR HTML NO DESEADO
+   ELIMINAR HTML NO DESEADO
    ========================================================= */
 
 function escapeHTML(texto) {
@@ -2485,6 +2041,42 @@ function escapeHTML(texto) {
 }
 
 
+/* =========================================================
+   FORMATEAR FECHA
+   ========================================================= */
+
+function formatearFecha(fecha) {
+
+    if (!fecha) {
+
+        return "Fecha no disponible";
+
+    }
+
+
+    const partes =
+        fecha.split("-");
+
+
+    if (
+        partes.length !== 3
+    ) {
+
+        return fecha;
+
+    }
+
+
+    return (
+        partes[2] +
+        "/" +
+        partes[1] +
+        "/" +
+        partes[0]
+    );
+
+}
+
 
 /* =========================================================
    INFORMACIÓN PREVENTIVA
@@ -2502,14 +2094,12 @@ function mostrarInfo(tipo) {
 
     }
 
-
     else if (tipo === "dental") {
 
         mensaje =
             "Las revisiones odontológicas ayudan a mantener la salud de los dientes y las encías y permiten detectar problemas de forma temprana.";
 
     }
-
 
     else if (tipo === "femenina") {
 
@@ -2518,14 +2108,12 @@ function mostrarInfo(tipo) {
 
     }
 
-
     else if (tipo === "masculina") {
 
         mensaje =
             "La salud masculina también requiere controles preventivos. Ante cambios, molestias o síntomas persistentes, es importante consultar a un profesional.";
 
     }
-
 
     else if (tipo === "solar") {
 
@@ -2534,14 +2122,12 @@ function mostrarInfo(tipo) {
 
     }
 
-
     else if (tipo === "vacunas") {
 
         mensaje =
             "Las vacunas ayudan a prevenir diversas enfermedades. Mantén tu esquema de vacunación actualizado según las recomendaciones de salud de tu país.";
 
     }
-
 
     else {
 
@@ -2554,7 +2140,6 @@ function mostrarInfo(tipo) {
     alert(mensaje);
 
 }
-
 
 
 /* =========================================================
@@ -2578,19 +2163,12 @@ const consejos = [
 ];
 
 
-
-/* =========================================================
-   MOSTRAR CONSEJO ALEATORIO
-   ========================================================= */
-
 function mostrarConsejo() {
 
     const numero =
         Math.floor(
-
             Math.random() *
             consejos.length
-
         );
 
 
@@ -2610,16 +2188,11 @@ function mostrarConsejo() {
 }
 
 
-
 /* =========================================================
-   ACTUALIZAR INTERFAZ DE USUARIO
+   ACTUALIZAR INTERFAZ
    ========================================================= */
 
 function actualizarInterfazSalud() {
-
-    /*
-       Agua
-    */
 
     const aguaTexto =
         document.getElementById(
@@ -2635,10 +2208,6 @@ function actualizarInterfazSalud() {
 
     }
 
-
-    /*
-       Sueño
-    */
 
     const resultadoSueno =
         document.getElementById(
@@ -2659,10 +2228,6 @@ function actualizarInterfazSalud() {
     }
 
 
-    /*
-       Actividad
-    */
-
     const actividadBtn =
         document.getElementById(
             "actividadBtn"
@@ -2671,24 +2236,13 @@ function actualizarInterfazSalud() {
 
     if (actividadBtn) {
 
-        if (salud.actividad) {
-
-            actividadBtn.textContent =
-                "✅ Actividad realizada";
-
-        } else {
-
-            actividadBtn.textContent =
-                "❌ No realizada";
-
-        }
+        actividadBtn.textContent =
+            salud.actividad
+                ? "✅ Actividad realizada"
+                : "❌ No realizada";
 
     }
 
-
-    /*
-       Alimentación
-    */
 
     const alimentacionBtn =
         document.getElementById(
@@ -2698,24 +2252,13 @@ function actualizarInterfazSalud() {
 
     if (alimentacionBtn) {
 
-        if (salud.alimentacion) {
-
-            alimentacionBtn.textContent =
-                "✅ Alimentación registrada";
-
-        } else {
-
-            alimentacionBtn.textContent =
-                "❌ Registrar alimentación";
-
-        }
+        alimentacionBtn.textContent =
+            salud.alimentacion
+                ? "✅ Alimentación registrada"
+                : "❌ Registrar alimentación";
 
     }
 
-
-    /*
-       Dientes
-    */
 
     const dientesBtn =
         document.getElementById(
@@ -2725,17 +2268,10 @@ function actualizarInterfazSalud() {
 
     if (dientesBtn) {
 
-        if (salud.dientes) {
-
-            dientesBtn.textContent =
-                "✅ Realizada";
-
-        } else {
-
-            dientesBtn.textContent =
-                "❌ Realizada";
-
-        }
+        dientesBtn.textContent =
+            salud.dientes
+                ? "✅ Realizada"
+                : "❌ Realizada";
 
     }
 
@@ -2745,7 +2281,6 @@ function actualizarInterfazSalud() {
 }
 
 
-
 /* =========================================================
    CAMBIO DE USUARIO
    ========================================================= */
@@ -2753,8 +2288,7 @@ function actualizarInterfazSalud() {
 function manejarCambioUsuario(usuario) {
 
     /*
-       Si había listener anterior,
-       detenerlo.
+       Detener listener anterior de citas.
     */
 
     if (detenerListenerCitas) {
@@ -2766,12 +2300,25 @@ function manejarCambioUsuario(usuario) {
     }
 
 
+    /*
+       Detener listener anterior de recordatorios.
+    */
+
+    if (detenerListenerRecordatorios) {
+
+        detenerListenerRecordatorios();
+
+        detenerListenerRecordatorios = null;
+
+    }
+
+
     usuarioActual =
         usuario;
 
 
     /*
-       Usuario no conectado.
+       Usuario desconectado.
     */
 
     if (!usuarioActual) {
@@ -2783,20 +2330,20 @@ function manejarCambioUsuario(usuario) {
 
         citas = [];
 
+        recordatorios = [];
+
 
         mostrarCitas();
 
         mostrarProximaCita();
+
+        actualizarDashboard();
 
 
         return;
 
     }
 
-
-    /*
-       Usuario conectado.
-    */
 
     console.log(
         "👤 Usuario conectado:",
@@ -2815,123 +2362,48 @@ function manejarCambioUsuario(usuario) {
         usuarioActual.displayName
     );
 
+
     const saludoPrincipal =
-    document.getElementById(
-        "saludoPrincipal"
-    );
+        document.getElementById(
+            "saludoPrincipal"
+        );
 
-if (saludoPrincipal) {
 
-    const nombre =
-        usuarioActual.displayName ||
-        usuarioActual.email ||
-        "Usuario";
+    if (saludoPrincipal) {
 
-    saludoPrincipal.textContent =
-        `Hola, ${nombre} 👋`;
+        const nombre =
+            usuarioActual.displayName ||
+            usuarioActual.email ||
+            "Usuario";
 
-}
 
-cargarCitasDesdeFirebase();
+        saludoPrincipal.textContent =
+            `Hola, ${nombre} 👋`;
+
+    }
+
 
     /*
-       Cargar citas específicas
-       de este UID.
+       ⭐ Cargar citas.
     */
 
-function cargarCitasDesdeFirebase() {
+    cargarCitasDesdeFirebase();
 
-    if (!usuarioActual) {
-        console.log("⚠️ No hay usuario para cargar citas");
-        return;
-    }
 
-    // Detener listener anterior si existe
-    if (citasUnsubscribe) {
-        citasUnsubscribe();
-        citasUnsubscribe = null;
-    }
+    /*
+       ⭐ Cargar recordatorios.
+    */
 
-    const citasRef = collection(
-        db,
-        "users",
-        usuarioActual.uid,
-        "citas"
-    );
+    cargarRecordatoriosDesdeFirebase();
 
-    citasUnsubscribe = onSnapshot(
-        citasRef,
-        (snapshot) => {
 
-            citas = [];
+    /*
+       Actualizar dashboard.
+    */
 
-            snapshot.forEach((docSnap) => {
-
-                const data = docSnap.data();
-
-                citas.push({
-                    id: docSnap.id,
-                    ...data
-                });
-
-            });
-
-            // Ordenar las citas por fecha y hora
-            citas.sort((a, b) => {
-
-                const fechaA = new Date(
-                    `${a.fecha}T${a.hora || "00:00"}`
-                );
-
-                const fechaB = new Date(
-                    `${b.fecha}T${b.hora || "00:00"}`
-                );
-
-                return fechaA - fechaB;
-            });
-
-            console.log(
-                "📅 Citas cargadas:",
-                citas.length
-            );
-
-            console.log(
-                "📦 Datos de citas:",
-                citas
-            );
-
-            console.log(
-                "🎯 Contenedor de citas:",
-                document.getElementById("listaCitas")
-            );
-
-            // Actualizar la sección de citas
-            mostrarCitas();
-
-            // Actualizar próxima cita
-            mostrarProximaCita();
-
-            // ⭐ IMPORTANTE:
-            // Actualizar inmediatamente el dashboard
-            actualizarDashboard();
-
-        },
-        (error) => {
-
-            console.error(
-                "❌ Error al cargar citas:",
-                error
-            );
-
-            actualizarDashboard();
-        }
-    );
-}
-
-cargarRecordatoriosDesdeFirebase();
+    actualizarDashboard();
 
 }
-
 
 
 /* =========================================================
@@ -2953,59 +2425,38 @@ onAuthStateChanged(
 );
 
 
-
 /* =========================================================
    EXPONER FUNCIONES AL HTML
    ========================================================= */
 
-/*
-   IMPORTANTE:
-
-   Tu index.html utiliza onclick="..."
-
-   Como este archivo ahora es un módulo,
-   las funciones no serían globales automáticamente.
-
-   Por eso las agregamos a window.
-*/
-
-
 window.mostrarSeccion =
     mostrarSeccion;
-
 
 window.agregarAgua =
     agregarAgua;
 
-
 window.guardarSueno =
     guardarSueno;
-
 
 window.marcarActividad =
     marcarActividad;
 
-
 window.marcarAlimentacion =
     marcarAlimentacion;
-
 
 window.marcarDientes =
     marcarDientes;
 
-
 window.marcarHabito =
     marcarHabito;
-
 
 window.agregarCita =
     agregarCita;
 
-
 window.eliminarCita =
     eliminarCita;
 
-    window.crearRecordatorio =
+window.crearRecordatorio =
     crearRecordatorio;
 
 window.eliminarRecordatorio =
@@ -3017,14 +2468,11 @@ window.cambiarEstadoRecordatorio =
 window.mostrarRecordatorios =
     mostrarRecordatorios;
 
-
 window.mostrarInfo =
     mostrarInfo;
 
-
 window.mostrarConsejo =
     mostrarConsejo;
-
 
 window.actualizarProgreso =
     actualizarProgreso;
