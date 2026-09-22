@@ -1365,17 +1365,34 @@ main {
 }
 
 /* =========================================================
-   SOFTER CARD COLORS — MAIN PAGES
+   WARM CREAM CARDS
    ========================================================= */
 
 .tarjeta,
 .dashboard-card,
-.dashboard-recordatorios {
-    background: rgba(241, 247, 253, 0.88);
-    border: 1px solid rgba(255, 255, 255, 0.55);
+.dashboard-recordatorios,
+.prevencion {
+    background: #F7F4ED;
+    border: 1px solid rgba(255, 255, 255, 0.6);
     box-shadow: 0 8px 25px rgba(30, 64, 175, 0.10);
 }
 
+/* Appointment cards */
+.cita {
+    background: #EEF5F8;
+}
+
+/* Dashboard container */
+.dashboard-salud {
+    background: rgba(220, 235, 247, 0.55);
+}
+
+/* Inputs */
+input,
+select {
+    background: #FAF8F3;
+    border: 1px solid #D8D3C8;
+}
 /* Welcome section */
 .bienvenida {
     background: linear-gradient(
