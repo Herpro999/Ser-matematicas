@@ -1210,3 +1210,17 @@ footer small {
     }
 
 }
+
+/* =========================================================
+   MODERN HEALTHCARE BACKGROUND
+   ========================================================= */
+
+body {
+    background:
+        radial-gradient(circle at 10% 15%, rgba(96, 165, 250, 0.25) 0%, transparent 25%),
+        radial-gradient(circle at 90% 20%, rgba(56, 189, 248, 0.20) 0%, transparent 25%),
+        radial-gradient(circle at 50% 100%, rgba(59, 130, 246, 0.18) 0%, transparent 35%),
+        linear-gradient(135deg, #e0f2fe 0%, #f8fbff 45%, #dbeafe 100%);
+
+    min-height: 100vh;
+}
