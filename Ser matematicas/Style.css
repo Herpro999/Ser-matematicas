@@ -590,3 +590,623 @@ footer small {
     font-size: 14px;
     font-weight: 600;
 }
+
+/* =========================================================
+   HEALTH TRACK — MODERN DASHBOARD
+   ========================================================= */
+
+/* ---------- GENERAL ---------- */
+
+body {
+    font-family: "Inter", "Segoe UI", Arial, sans-serif;
+    background:
+        radial-gradient(circle at top left, rgba(96, 165, 250, 0.18), transparent 30%),
+        linear-gradient(180deg, #f8fbff 0%, #eef6ff 100%);
+    color: #1e293b;
+    min-height: 100vh;
+}
+
+
+/* ---------- HEADER ---------- */
+
+header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+
+    background: rgba(255, 255, 255, 0.92);
+    color: #1e40af;
+
+    padding: 16px 40px;
+
+    border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+
+    box-shadow: 0 8px 30px rgba(30, 64, 175, 0.08);
+
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+
+.logo {
+    font-size: 25px;
+    font-weight: 800;
+    color: #1e40af;
+    letter-spacing: -0.5px;
+}
+
+nav {
+    display: flex;
+    gap: 6px;
+}
+
+nav button {
+    background: transparent;
+    color: #475569;
+
+    border: none;
+    border-radius: 12px;
+
+    padding: 10px 14px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+nav button:hover {
+    background: #eff6ff;
+    color: #2563eb;
+    transform: translateY(-1px);
+}
+
+
+/* ---------- MAIN ---------- */
+
+main {
+    max-width: 1150px;
+    margin: auto;
+    padding: 45px 24px 60px;
+}
+
+
+/* ---------- SECTION HEADINGS ---------- */
+
+.seccion > h1 {
+    color: #0f172a;
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 25px;
+    letter-spacing: -0.7px;
+}
+
+
+/* ---------- WELCOME ---------- */
+
+.bienvenida {
+    margin-bottom: 30px;
+}
+
+.bienvenida h1 {
+    color: #0f172a;
+    font-size: 38px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    letter-spacing: -1px;
+}
+
+.bienvenida p {
+    color: #64748b;
+    font-size: 17px;
+}
+
+
+/* ---------- DAILY ADVICE ---------- */
+
+.tarjeta.consejo {
+    position: relative;
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            135deg,
+            #2563eb 0%,
+            #38bdf8 100%
+        );
+
+    color: white;
+
+    border: none;
+    border-radius: 24px;
+
+    padding: 28px 30px;
+
+    box-shadow:
+        0 15px 35px rgba(37, 99, 235, 0.20);
+}
+
+.tarjeta.consejo::after {
+    content: "💙";
+
+    position: absolute;
+    right: 25px;
+    bottom: -12px;
+
+    font-size: 85px;
+    opacity: 0.13;
+}
+
+.tarjeta.consejo h2 {
+    position: relative;
+    z-index: 1;
+
+    color: white;
+    font-size: 20px;
+}
+
+.tarjeta.consejo p {
+    position: relative;
+    z-index: 1;
+
+    max-width: 700px;
+
+    color: rgba(255, 255, 255, 0.92);
+
+    line-height: 1.6;
+}
+
+
+/* ---------- HEALTH DASHBOARD ---------- */
+
+.dashboard-salud {
+    margin-top: 38px;
+}
+
+.dashboard-salud h2 {
+    color: #0f172a;
+    font-size: 24px;
+    font-weight: 800;
+    margin-bottom: 8px;
+}
+
+#saludoDashboard {
+    color: #64748b;
+    margin-bottom: 22px;
+}
+
+
+/* ---------- DASHBOARD GRID ---------- */
+
+.dashboard-grid {
+    gap: 18px;
+    margin-bottom: 22px;
+}
+
+
+/* ---------- DASHBOARD CARDS ---------- */
+
+.dashboard-card {
+    position: relative;
+    overflow: hidden;
+
+    background: rgba(255, 255, 255, 0.92);
+
+    padding: 23px;
+
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-radius: 22px;
+
+    box-shadow:
+        0 8px 25px rgba(15, 23, 42, 0.06);
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease,
+        border-color 0.25s ease;
+}
+
+.dashboard-card::after {
+    content: "";
+
+    position: absolute;
+
+    width: 80px;
+    height: 80px;
+
+    right: -35px;
+    top: -35px;
+
+    border-radius: 50%;
+
+    background: #eff6ff;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+
+    border-color: #bfdbfe;
+
+    box-shadow:
+        0 15px 35px rgba(37, 99, 235, 0.12);
+}
+
+.dashboard-icon {
+    position: relative;
+    z-index: 1;
+
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #eff6ff;
+
+    border-radius: 15px;
+
+    font-size: 25px;
+
+    margin-bottom: 15px;
+}
+
+.dashboard-card h3 {
+    position: relative;
+    z-index: 1;
+
+    color: #334155;
+
+    font-size: 15px;
+    font-weight: 700;
+
+    margin-bottom: 5px;
+}
+
+.dashboard-card > p {
+    position: relative;
+    z-index: 1;
+
+    color: #1d4ed8;
+
+    font-size: 32px;
+    font-weight: 800;
+
+    margin: 3px 0;
+}
+
+.dashboard-card span {
+    position: relative;
+    z-index: 1;
+
+    color: #94a3b8;
+
+    font-size: 13px;
+}
+
+
+/* ---------- NEXT APPOINTMENT ---------- */
+
+.dashboard-proxima {
+    min-height: 175px;
+}
+
+.dashboard-proxima #dashboardProximaCita {
+    position: relative;
+    z-index: 1;
+
+    color: #64748b;
+
+    line-height: 1.5;
+}
+
+
+/* ---------- REMINDERS ---------- */
+
+.dashboard-recordatorios {
+    background: rgba(255, 255, 255, 0.92);
+
+    padding: 25px;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 22px;
+
+    box-shadow:
+        0 8px 25px rgba(15, 23, 42, 0.06);
+}
+
+.dashboard-recordatorios h3 {
+    color: #0f172a;
+    font-size: 18px;
+    margin-bottom: 12px;
+}
+
+.dashboard-recordatorio-item {
+    padding: 15px 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.dashboard-recordatorio-item:last-child {
+    border-bottom: none;
+}
+
+.dashboard-recordatorio-info strong {
+    color: #334155;
+}
+
+.dashboard-recordatorio-info span {
+    color: #94a3b8;
+}
+
+
+/* ---------- GENERAL CARDS ---------- */
+
+.tarjeta {
+    background: rgba(255, 255, 255, 0.94);
+
+    padding: 28px;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 22px;
+
+    box-shadow:
+        0 8px 25px rgba(15, 23, 42, 0.06);
+
+    margin-bottom: 22px;
+}
+
+.tarjeta h2,
+.tarjeta h3 {
+    color: #0f172a;
+}
+
+
+/* ---------- BUTTONS ---------- */
+
+button {
+    background: linear-gradient(
+        90deg,
+        #2563eb,
+        #38bdf8
+    );
+
+    color: white;
+
+    border: none;
+    border-radius: 13px;
+
+    padding: 11px 17px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+button:hover {
+    background: linear-gradient(
+        90deg,
+        #1d4ed8,
+        #0ea5e9
+    );
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 8px 20px rgba(37, 99, 235, 0.20);
+}
+
+
+/* ---------- INPUTS ---------- */
+
+input,
+select {
+    width: 100%;
+
+    padding: 14px 16px;
+
+    margin: 9px 0 15px;
+
+    border: 2px solid #e2e8f0;
+
+    border-radius: 14px;
+
+    background: #f8fafc;
+
+    color: #334155;
+
+    font-size: 15px;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+input:focus,
+select:focus {
+    outline: none;
+
+    background: white;
+
+    border-color: #60a5fa;
+
+    box-shadow:
+        0 0 0 4px rgba(59, 130, 246, 0.12);
+}
+
+
+/* ---------- HABITS ---------- */
+
+#listaHabitos li {
+    padding: 16px 4px;
+
+    border-bottom: 1px solid #eef2f7;
+}
+
+#listaHabitos li span {
+    color: #334155;
+    font-weight: 600;
+}
+
+
+/* ---------- APPOINTMENTS ---------- */
+
+.cita {
+    background: #f0f9ff;
+
+    border: 1px solid #dbeafe;
+
+    padding: 17px;
+
+    margin: 12px 0;
+
+    border-radius: 15px;
+}
+
+
+/* ---------- PREVENTION ---------- */
+
+.descripcion-prevencion {
+    color: #64748b;
+
+    font-size: 16px;
+
+    line-height: 1.6;
+
+    margin-bottom: 28px;
+}
+
+.prevencion {
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.prevencion:hover {
+    transform: translateY(-6px);
+
+    box-shadow:
+        0 15px 35px rgba(37, 99, 235, 0.12);
+}
+
+.prevencion p {
+    color: #64748b;
+
+    line-height: 1.6;
+
+    margin-bottom: 8px;
+}
+
+.boton-enlace {
+    background: linear-gradient(
+        90deg,
+        #2563eb,
+        #38bdf8
+    );
+
+    border-radius: 13px;
+
+    font-weight: 600;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.boton-enlace:hover {
+    background: linear-gradient(
+        90deg,
+        #1d4ed8,
+        #0ea5e9
+    );
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 8px 20px rgba(37, 99, 235, 0.18);
+}
+
+
+/* ---------- FOOTER ---------- */
+
+footer {
+    background: #0f172a;
+
+    color: white;
+
+    padding: 30px 20px;
+
+    margin-top: 20px;
+}
+
+footer small {
+    color: #94a3b8;
+}
+
+
+/* ---------- MOBILE ---------- */
+
+@media (max-width: 700px) {
+
+    header {
+        position: relative;
+
+        padding: 18px 20px;
+    }
+
+    .logo {
+        margin-bottom: 5px;
+    }
+
+    nav {
+        gap: 5px;
+    }
+
+    nav button {
+        padding: 9px 10px;
+        font-size: 13px;
+    }
+
+    main {
+        padding: 30px 16px 45px;
+    }
+
+    .bienvenida h1 {
+        font-size: 30px;
+    }
+
+    .seccion > h1 {
+        font-size: 27px;
+    }
+
+    .tarjeta.consejo {
+        padding: 24px;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+}
+
+@media (max-width: 480px) {
+
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-card {
+        padding: 20px;
+    }
+
+    nav button {
+        font-size: 12px;
+        padding: 8px 9px;
+    }
+
+}
