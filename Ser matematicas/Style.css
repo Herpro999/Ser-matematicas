@@ -1363,3 +1363,58 @@ main {
 .dashboard-recordatorio-item {
     border-bottom: 1px solid rgba(59, 130, 246, 0.12);
 }
+
+/* =========================================================
+   SOFTER CARD COLORS — MAIN PAGES
+   ========================================================= */
+
+.tarjeta,
+.dashboard-card,
+.dashboard-recordatorios {
+    background: rgba(241, 247, 253, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    box-shadow: 0 8px 25px rgba(30, 64, 175, 0.10);
+}
+
+/* Welcome section */
+.bienvenida {
+    background: linear-gradient(
+        135deg,
+        rgba(37, 99, 235, 0.88),
+        rgba(14, 165, 233, 0.82)
+    );
+}
+
+/* Dashboard container */
+.dashboard-salud {
+    background: rgba(226, 239, 251, 0.45);
+}
+
+/* Reminder area */
+.dashboard-recordatorios {
+    background: rgba(241, 247, 253, 0.88);
+}
+
+/* Prevention cards */
+.prevencion {
+    background: rgba(241, 247, 253, 0.88);
+}
+
+/* Appointment cards */
+.cita {
+    background: rgba(224, 242, 254, 0.75);
+}
+
+/* Inputs and selects */
+input,
+select {
+    background: rgba(239, 246, 255, 0.9);
+    border: 1px solid #cbdff2;
+}
+
+input:focus,
+select:focus {
+    background: #f4f9ff;
+    border-color: #60a5fa;
+    outline: none;
+}
