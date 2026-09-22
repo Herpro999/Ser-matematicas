@@ -10,17 +10,30 @@
     <link rel="stylesheet" href="Style.css" />
   </head>
 
-  <body>
-    <main class="auth-container">
-      <div class="auth-card">
-        <h1>🩺 HealthTrack</h1>
+  <body class="login-page">
 
-        <h2>Iniciar sesión</h2>
+    <main class="login-card">
 
-        <p>Ingresa a tu cuenta para acceder a tus datos de salud.</p>
+      <img
+        src="images/login-health.jpg"
+        class="hero-image"
+        alt="HealthTrack"
+      />
 
-        <form id="loginForm">
-          <label for="loginEmail"> Correo electrónico </label>
+      <h1>HealthTrack</h1>
+
+      <h2>Iniciar sesión</h2>
+
+      <p class="login-subtitle">
+        Ingresa a tu cuenta para continuar cuidando tu salud.
+      </p>
+
+      <form id="loginForm">
+
+        <div class="input-group">
+          <label for="loginEmail">
+            Correo electrónico
+          </label>
 
           <input
             type="email"
@@ -28,8 +41,12 @@
             placeholder="correo@ejemplo.com"
             required
           />
+        </div>
 
-          <label for="loginPassword"> Contraseña </label>
+        <div class="input-group">
+          <label for="loginPassword">
+            Contraseña
+          </label>
 
           <input
             type="password"
@@ -37,20 +54,33 @@
             placeholder="Tu contraseña"
             required
           />
+        </div>
 
-          <button type="submit">Iniciar sesión</button>
-        </form>
+        <button
+          type="submit"
+          class="primary-btn"
+        >
+          Iniciar sesión
+        </button>
 
-        <p id="mensajeLogin"></p>
+      </form>
 
-        <p class="auth-link">
-          ¿No tienes una cuenta?
+      <p id="mensajeLogin"></p>
 
-          <a href="registro.html"> Registrarte </a>
-        </p>
-      </div>
+      <p class="auth-link">
+        ¿No tienes una cuenta?
+
+        <a href="singup.html">
+          Registrarte
+        </a>
+      </p>
+
     </main>
 
-    <script type="module" src="auth.js"></script>
+    <script
+      type="module"
+      src="auth.js"
+    ></script>
+
   </body>
 </html>
